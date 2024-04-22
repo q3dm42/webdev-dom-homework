@@ -5,167 +5,152 @@
   <title>Проект "Комменты"</title>
   <meta charset="utf-8" />
   <link rel="stylesheet" href="styles.css" />
-
 </head>
 
 <body>
   <div class="container">
 
+    <!-- рендеринг комментариев из JS -->
+    <ul class="comments"></ul>
 
-    <!-- Список комменты -->
-    <ul class="comments">
-
-      <!-- 1 -->
-      <li id="first-comment" class="comment">
-        <div class="comment-header">
-          <div>Глеб Фокин</div>
-          <div>12.02.22 12:18</div>
-        </div>
-        <div class="comment-body">
-          <div class="comment-text">
-            Это будет первый комментарий на этой странице
-          </div>
-        </div>
-        <div class="comment-footer">
-          <div class="likes">
-            <span class="likes-counter">3</span>
-            <button class="like-button"></button>
-          </div>
-        </div>
-      </li>
-
-      <!-- 2 -->
-      <li id="second-comment" class="comment">
-        <div class="comment-header">
-          <div>Варвара Н.</div>
-          <div>13.02.22 19:22</div>
-        </div>
-        <div class="comment-body">
-          <div class="comment-text">
-            Мне нравится как оформлена эта страница! ❤
-          </div>
-        </div>
-        <div class="comment-footer">
-          <div class="likes">
-            <span class="likes-counter">75</span>
-            <button class="like-button -active-like"></button>
-          </div>
-        </div>
-      </li>
-
-    </ul>
-
-
-    <!-- Форма ввода нового коментария -->
-
+    <!-- Форма ввода нового комментария -->
     <!-- Имя -->
     <div class="add-form">
       <input type="text" class="add-form-name" placeholder="Введите ваше имя" />
-
-      <!-- Коммент -->
-      <textarea type="textarea" class="add-form-text" placeholder="Введите ваш коментарий" rows="4"></textarea>
-
+      <!-- Комментарий -->
+      <textarea type="textarea" class="add-form-text" placeholder="Введите ваш комментарий" rows="4"></textarea>
       <!-- Область кнопки -->
       <div class="add-form-row">
         <button class="add-form-button">Написать</button>
       </div>
-
     </div>
-
 
   </div>
 </body>
 
-
-
 <script>
+
+  //создание исходного массива
+  const comments = [
+    {
+      name: 'Глеб Фокин',
+      date: '12.02.22 12:18',
+      text: 'Это будет первый комментарий на этой странице',
+      likes: 3,
+      liked: false
+    },
+    {
+      name: 'Варвара Н.',
+      date: '13.02.22 19:22',
+      text: 'Мне нравится как оформлена эта страница! ❤',
+      likes: 75,
+      liked: false
+    }
+  ];
 
 
   document.addEventListener('DOMContentLoaded', () => {
 
-    //поиск отслеживаемых элементов по селектору и сохранение значений в переменные
+    //получение данных инпута из формы
     const addButton = document.querySelector('.add-form-button');
     const nameInput = document.querySelector('.add-form-name');
     const textInput = document.querySelector('.add-form-text');
 
+    //рендеринг комментариев
+    function renderComments(commentsArray) {
+      const commentsList = document.querySelector('.comments');
+      commentsList.innerHTML = '';
 
-    //функция проверки полей с очисткой пробелов
+      commentsArray.forEach((comment, index) => {
+        const li = document.createElement('li');
+        li.classList.add('comment');
+        li.innerHTML = `
+          <div class="comment-header">
+            <div>${comment.name}</div>
+            <div>${comment.date}</div>
+          </div>
+          <div class="comment-body">
+            <div class="comment-text">${comment.text}</div>
+          </div>
+          <div class="comment-footer">
+            <div class="likes">
+              <span class="likes-counter">${comment.likes}</span>
+              <button class="like-button${comment.liked ? ' -active-like' : ''}" data-index="${index}"></button>
+            </div>
+          </div>
+        `;
+        commentsList.appendChild(li);
+        const likeButton = li.querySelector('.like-button');
+        likeButton.addEventListener('click', () => {
+          toggleLike(index);
+        });
+      });
+    }
+    renderComments(comments);
+
+    //функция проверки заполненности полей
     function checkFields() {
-      //удаляем начальные и конечные пробелы с помощью trim
       const name = nameInput.value.trim();
       const text = textInput.value.trim();
-      //возвращаем true, если оба поля заполнены (!НЕпусто)
       return name !== '' && text !== '';
     }
 
-
-    //функция активности кнопки
+    //функция обновления активности кнопки
     function updateButtonState() {
       addButton.disabled = !checkFields();
     }
-    //обновление активности
+
+    //обновление активности кнопки при вводе
     nameInput.addEventListener('input', updateButtonState);
     textInput.addEventListener('input', updateButtonState);
 
-
-
-
-    //отслеживание клика на кнопку
+    //обработчик клика на кнопку "Написать"
     addButton.addEventListener('click', () => {
       addComment();
     });
-    //отслеживание нажатия клавиши Enter
+
+    //обработчик нажатия Enter в текстовом поле
     textInput.addEventListener('keyup', (event) => {
       if (event.key === 'Enter') {
         addComment();
       }
     });
 
-
-    //функция публикации комментария
+    //функция добавления комментария с проверкой и удалением пробелов
     function addComment() {
-      //удаляем начальные и конечные пробелы с помощью trim и сохраняем во внутренние переменные
       const name = nameInput.value.trim();
       const text = textInput.value.trim();
 
-      //если оба поля заполнены
       if (name !== '' && text !== '') {
-
-        //то создаём новый комментарий и добавляем его на страницу
-        const newComment = document.createElement('li');
-        newComment.classList.add('comment');
-        const commentHTML = `
-                <div class="comment-header">
-                    <div>${name}</div>
-                    <div>${getCurrentDate()}</div>
-                </div>
-                <div class="comment-body">
-                    <div class="comment-text">${text}</div>
-                </div>
-                <div class="comment-footer">
-                    <div class="likes">
-                        <span class="likes-counter">0</span>
-                        <button class="like-button"></button>
-                    </div>
-                </div>
-            `;
-
-        //добавление и отображение нового списка
-        newComment.innerHTML = commentHTML;
-        const commentsList = document.querySelector('.comments');
-        commentsList.appendChild(newComment);
-
-        //очистка полей ввода
+        const newComment = {
+          name: name,
+          date: getCurrentDate(),
+          text: text,
+          likes: 0,
+          liked: false
+        };
+        comments.push(newComment);
+        renderComments(comments);
         nameInput.value = '';
         textInput.value = '';
       } else {
-
-        //выводим сообщение об ошибке, если не все поля заполнены
         alert('Пожалуйста, заполните все поля');
       }
     }
 
-    //получаем текущую дату
+    //функция переключения лайка
+    function toggleLike(index) {
+      const comment = comments[index];
+      if (!comment.liked) {
+        comment.likes++;
+      } else {
+        comment.likes--;
+      }
+      comment.liked = !comment.liked;
+      renderComments(comments);
+    }
+
+    //получение текущей даты и времени
     function getCurrentDate() {
       const now = new Date();
       const date = now.toLocaleDateString('ru-RU');
@@ -173,11 +158,9 @@
       return `${date} ${time}`;
     }
 
-    //обновляем доступность кнопки при загрузке страницы
+    //обновление состояния кнопки при загрузке страницы
     updateButtonState();
   });
-
-
 </script>
 
 </html>
