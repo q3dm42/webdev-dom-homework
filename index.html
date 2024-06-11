@@ -9,6 +9,10 @@
 
 <body>
   <div class="container">
+    <!-- сервисные сообщения-->
+    <div class="loading-message">Комментарии загружаются...</div>
+    <div class="adding-message">Комментарий добавляется...</div>
+
     <!-- рендеринг комментариев из JS -->
     <ul class="comments"></ul>
 
@@ -25,192 +29,198 @@
       </div>
 
     </div>
-
   </div>
-</body>
-
-<script>
-
-  // сохранение ссылки API в переменной
-  const apiUrl = 'https://wedev-api.sky.pro/api/v1/sergei-smirnov/comments';
-
-  document.addEventListener('DOMContentLoaded', () => {
-
-    // получение данных инпута из формы
-    const addButton = document.querySelector('.add-form-button');
-    const nameInput = document.querySelector('.add-form-name');
-    const textInput = document.querySelector('.add-form-text');
-    nameInput.value = '';
-    textInput.value = '';
-
-    // массив для хранения комментариев и локальной работы лайков
-    let comments = [];
 
 
-    // получаем комментарии с сервера
-    function fetchComments() {
-      fetch(apiUrl, { method: 'GET' })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Ошибка при загрузке комментариев');
-          }
-          return response.json();
-        })
-        .then(data => {
-          // обрабатываем данные и преобразуем их в нужный формат
-          comments = data.comments.map((comment) => ({
-            name: comment.author.name,
-            date: new Date(comment.date).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }),
-            text: comment.text,
-            likes: comment.likes,
-            liked: comment.isLiked,
-            id: comment.id,
-          }));
 
-          // рендерим комментарии
-          renderComments(comments);
-        })
-        .catch(error => {
-          console.error(error);
-        });
-    }
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // сохранение ссылки API в переменной
+      const apiUrl = 'https://wedev-api.sky.pro/api/v1/sergei-smirnov/comments';
 
-    // отправка нового комментария на сервер
-    function postComment(name, text) {
-      fetch(apiUrl, {
-        method: 'POST',
-        body: JSON.stringify({ name, text })
-      })
-        .then(response => {
-          if (!response.ok) {
-            return response.json().then(errorData => {
-              throw new Error('Ошибка при добавлении комментария: ' + JSON.stringify(errorData));
-            });
-          }
-          // если успешно добавлено, то загружаем обновленный список комментариев
-          fetchComments();
-        })
-        .catch(error => {
-          console.error('Ошибка при добавлении комментария:', error);
-        });
-    }
 
-    // рендеринг комментариев
-    function renderComments(commentsArray) {
+      // получение ссылок на элементы формы и сообщения о загрузке
+      const commentForm = document.querySelector('.add-form');
+      const addButton = document.querySelector('.add-form-button');
+      const nameInput = document.querySelector('.add-form-name');
+      const textInput = document.querySelector('.add-form-text');
+      const loadingMessage = document.querySelector('.loading-message');
+      const addingMessage = document.querySelector('.adding-message');
       const commentsList = document.querySelector('.comments');
-      commentsList.innerHTML = '';
 
-      commentsArray.forEach((comment, index) => {
-        const li = document.createElement('li');
-        li.classList.add('comment');
-        li.innerHTML = `
-                    <div class="comment-header">
-                        <div>${comment.name}</div>
-                        <div>${comment.date}</div>
-                    </div>
-                    <div class="comment-body">
-                        <div class="comment-text">${comment.text}</div>
-                    </div>
-                    <div class="comment-footer">
-                        <div class="likes">
-                            <span class="likes-counter">${comment.likes}</span>
-                            <button class="like-button${comment.liked ? ' -active-like' : ''}" data-index="${index}"></button>
-                        </div>
-                    </div>
-                `;
-        commentsList.appendChild(li);
+      // массив для хранения комментариев
+      let comments = [];
 
-        // обработчик события для кнопки лайка
-        const likeButton = li.querySelector('.like-button');
-        likeButton.addEventListener('click', () => {
-          toggleLike(index);
-        });
-      });
-    }
-
-    // функция для переключения лайка локально
-    function toggleLike(index) {
-      const comment = comments[index];
-      if (!comment.liked) {
-        comment.likes++;
-      } else {
-        comment.likes--;
-      }
-      comment.liked = !comment.liked;
-
-      // обновляем комментарии
-      renderComments(comments);
-    }
-
-    // замена кода в полях ввода на символы
-    function checkSubmit() {
-      const inputAddNameForm = document.querySelector('.add-form-name');
-      const areaAddFormRow = document.querySelector('.add-form-text');
-      const inputValue = inputAddNameForm.value
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;');
-
-      const areaFormValue = areaAddFormRow.value
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll('QUOTE_BEGIN', "<div class='quote'>")
-        .replaceAll('QUOTE_END', '</div>')
-        .replaceAll('\n', '<br>');
-
-      
-      if (inputValue !== '' && areaFormValue !== '') {
-        postComment(inputValue, areaFormValue);
-      }
-
-
-
-    }
-
-    // функция для проверки заполненности полей ввода
-    function checkFields() {
-      const name = nameInput.value.trim();
-      const text = textInput.value.trim();
-      return name !== '' && text !== '';
-
-    }
-
-    // функция для обновления состояния кнопки отправки
-    function updateButtonState() {
-      addButton.disabled = !checkFields();
-    }
-
-    // обработчики событий для ввода имени и текста комментария
-    nameInput.addEventListener('input', updateButtonState);
-    textInput.addEventListener('input', updateButtonState);
-
-    // обработчик события для кнопки отправки комментария
-    addButton.addEventListener('click', () => {
-      checkSubmit();
-      // очищаем поля ввода после отправки
-      nameInput.value = '';
-      textInput.value = '';
-      updateButtonState();
-    });
-
-    // обработчик события для отправки комментария по клавишам Shift+Enter
-    textInput.addEventListener('keyup', (event) => {
-      if (event.key === 'Enter' && event.shiftKey) {
-        checkSubmit();
-        // очищаем поля ввода после отправки
+      // функция сброса полей ввода
+      function clearInputFields() {
         nameInput.value = '';
         textInput.value = '';
-        updateButtonState();
-        event.preventDefault();
+        updateButtonState(); // обновление состояния кнопки после очистки полей
       }
+
+      // получаем комментарии и дату с сервера
+      function fetchComments() {
+        loadingMessage.classList.add('active'); // Показываем сообщение о загрузке
+        fetch(apiUrl)
+          .then(response => response.json())
+          .then(data => {
+            // преобразуем данные комментариев в удобный формат и сохраняем в массив
+            comments = data.comments.map(comment => ({
+              name: comment.author.name,
+              date: new Date(comment.date).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }),
+              text: comment.text,
+              likes: comment.likes,
+              liked: comment.isLiked,
+              id: comment.id,
+            }));
+            renderComments(comments); // рендерим комментарии
+          })
+          .finally(() => {
+            loadingMessage.classList.remove('active'); // убираем сообщение о загрузке после завершения запроса
+          })
+          .catch(error => {
+            console.error(error);
+          });
+      }
+
+      // функция рендеринга комментариев
+      function renderComments(commentsArray) {
+        commentsList.innerHTML = ''; // очищаем список комментариев
+
+        if (!commentsArray) return; // проверяем наличие комментариев
+
+        commentsArray.forEach((comment, index) => {
+          // создаем HTML для каждого комментария и добавляем его в список
+          const li = document.createElement('li');
+          li.classList.add('comment');
+          li.innerHTML = `
+                <div class="comment-header">
+                    <div>${comment.name}</div>
+                    <div>${comment.date}</div>
+                </div>
+                <div class="comment-body">
+                    <div class="comment-text">${comment.text}</div>
+                </div>
+                <div class="comment-footer">
+                    <div class="likes">
+                        <span class="likes-counter">${comment.likes}</span>
+                        <button class="like-button${comment.liked ? ' -active-like' : ''}" data-index="${index}"></button>
+                    </div>
+                </div>
+            `;
+          commentsList.appendChild(li);
+
+
+          // обработчик события для кнопки лайка
+          const likeButton = li.querySelector('.like-button');
+          likeButton.addEventListener('click', () => {
+            toggleLike(index)
+              .then(() => {
+                renderComments(comments); // перерисовываем комментарии с обновленными лайками
+              });
+          });
+        });
+      }
+
+
+      //функция для переключения лайка локально
+      function toggleLike(index) {
+        const comment = comments[index];
+        comment.isLikeLoading = true; // устанавливаем состояние загрузки
+
+        return new Promise(resolve => {
+          setTimeout(() => {
+            // имитируем задержку на сервере и обновляем состояние лайка
+            if (!comment.liked) {
+              comment.likes++;
+            } else {
+              comment.likes--;
+            }
+            comment.liked = !comment.liked;
+            comment.isLikeLoading = false; // снимаем состояние загрузки
+            resolve();
+          }, 2000);
+        });
+      }
+
+
+      // функция для отправки нового комментария на сервер
+      function postComment(name, text) {
+        commentForm.classList.add('hidden'); // скрываем форму ввода комментария
+        addingMessage.classList.add('active'); // показываем сообщение о добавлении комментария
+        fetch(apiUrl, {
+          method: 'POST',
+          body: JSON.stringify({ name, text })
+        })
+          .then(response => response.json())
+          .then(() => fetchComments()) // загружаем обновлённые данные с сервера после добавления комментария
+          .then(() => {
+            clearInputFields(); // очищаем поля ввода
+            renderComments(comments); // перерисовываем комментарии с добавленным
+          })
+          .finally(() => {
+            commentForm.classList.remove('hidden'); // показываем форму ввода комментария
+            addingMessage.classList.remove('active'); // скрываем сообщение о добавлении комментария
+          })
+          .catch(error => {
+            console.error('Ошибка при добавлении комментария:', error);
+          });
+      }
+
+      // проверка и замена вредоносного кода в полях ввода
+      function checkSubmit() {
+        const inputValue = nameInput.value
+          .replaceAll('&', '&amp;')
+          .replaceAll('<', '&lt;')
+          .replaceAll('>', '&gt;')
+          .replaceAll('"', '&quot;');
+
+        const areaFormValue = textInput.value
+          .replaceAll('&', '&amp;')
+          .replaceAll('<', '&lt;')
+          .replaceAll('>', '&gt;')
+          .replaceAll('"', '&quot;')
+          .replaceAll('QUOTE_BEGIN', "<div class='quote'>")
+          .replaceAll('QUOTE_END', '</div>')
+          .replaceAll('\n', '<br>');
+
+        // если поля не пустые, то отправляем комментарий
+        if (inputValue !== '' && areaFormValue !== '') {
+          postComment(inputValue, areaFormValue);
+        }
+      }
+
+      // функция для проверки первого и последнего символа в поле ввода
+      function checkFields() {
+        const name = nameInput.value.trim();
+        const text = textInput.value.trim();
+        return name !== '' && text !== '';
+      }
+
+      // функция для обновления состояния кнопки отправки
+      function updateButtonState() {
+        addButton.disabled = !checkFields(); // отключаем кнопку отправки, если поля не заполнены
+      }
+
+      // добавляем обработчики событий для ввода имени и текста комментария
+      nameInput.addEventListener('input', updateButtonState);
+      textInput.addEventListener('input', updateButtonState);
+      addButton.addEventListener('click', checkSubmit); //  обработчик клика по кнопке отправки комментария
+      textInput.addEventListener('keyup', (event) => {
+        if (event.key === 'Enter' && event.shiftKey) {
+          checkSubmit(); //  отправка комментария по нажатию Shift+Enter
+          event.preventDefault();
+        }
+      });
+
+      // загружаем комментарии о очищаем поля при загрузке страницы
+      fetchComments();
+      clearInputFields()
+
     });
 
-    // загружаем комментарии при загрузке страницы
-    fetchComments();
-  });
-</script>
+
+  </script>
+</body>
 
 </html>
