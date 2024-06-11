@@ -146,26 +146,39 @@
 
       // функция для отправки нового комментария на сервер
       function postComment(name, text) {
-        commentForm.classList.add('hidden'); // скрываем форму ввода комментария
-        addingMessage.classList.add('active'); // показываем сообщение о добавлении комментария
-        fetch(apiUrl, {
-          method: 'POST',
-          body: JSON.stringify({ name, text })
-        })
-          .then(response => response.json())
-          .then(() => fetchComments()) // загружаем обновлённые данные с сервера после добавления комментария
-          .then(() => {
-            clearInputFields(); // очищаем поля ввода
-            renderComments(comments); // перерисовываем комментарии с добавленным
-          })
-          .finally(() => {
-            commentForm.classList.remove('hidden'); // показываем форму ввода комментария
-            addingMessage.classList.remove('active'); // скрываем сообщение о добавлении комментария
-          })
-          .catch(error => {
-            console.error('Ошибка при добавлении комментария:', error);
-          });
-      }
+                commentForm.classList.add('hidden'); // скрываем форму ввода комментария
+                addingMessage.classList.add('active'); // показываем сообщение о добавлении комментария
+
+                // Отключаем кнопку "Написать"
+                addButton.disabled = true;
+                addButton.textContent = "Отправка...";
+
+                fetch(apiUrl, {
+                    method: 'POST',
+                    body: JSON.stringify({ name, text })
+                })
+                    .then(response => response.json())
+                    .then(() => fetchComments()) // загружаем обновлённые данные с сервера
+                    .then(() => {
+                        clearInputFields(); // очищаем поля ввода
+                        renderComments(comments); // перерисовываем комментарии с добавленным
+
+                        // включаем кнопку "Написать" после успешной отправки
+                        addButton.disabled = false;
+                        addButton.textContent = "Написать";
+                    })
+                    .finally(() => {
+                        commentForm.classList.remove('hidden'); // показываем форму ввода комментария
+                        addingMessage.classList.remove('active'); // скрываем сообщение о добавлении комментария
+                    })
+                    .catch(error => {
+                        console.error('Ошибка при добавлении комментария:', error);
+
+                        // в случае ошибки включаем кнопку "Написать"
+                        addButton.disabled = false;
+                        addButton.textContent = "Написать";
+                    });
+            }
 
       // проверка и замена вредоносного кода в полях ввода
       function checkSubmit() {
