@@ -133,17 +133,30 @@
           likeButton.addEventListener('click', () => {
             toggleLike(index)
               .then(() => {
-                renderComments(comments); // перерисовываем комментарии с обновленными лайками
+                // перерисовываем комментарии с обновленными лайками
+                renderComments(comments);
               });
           });
+
+          // // если состояние лайка загружается, добавляем анимацию
+          // if (comment.isLikeLoading) {
+          //   likeButton.classList.add('loading-like');
+          // } else {
+          //   likeButton.classList.remove('loading-like');
+          // }
         });
       }
 
 
-      //функция для переключения лайка локально
+
+      // функция для переключения лайка локально
       function toggleLike(index) {
         const comment = comments[index];
         comment.isLikeLoading = true; // устанавливаем состояние загрузки
+
+        // const likeButton = document.querySelector(`.like-button[data-index="${index}"]`);
+        // likeButton.classList.add('loading-like'); 
+        // добавляем класс для анимации
 
         return new Promise(resolve => {
           setTimeout(() => {
@@ -155,10 +168,13 @@
             }
             comment.liked = !comment.liked;
             comment.isLikeLoading = false; // снимаем состояние загрузки
+
+            // likeButton.classList.remove('loading-like'); // удаляем класс для анимации
             resolve();
           }, 2000);
         });
       }
+
 
 
 
