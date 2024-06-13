@@ -137,3 +137,11 @@ body {
 .add-form-button:hover {
   opacity: 0.9;
 }
+
+.quote {
+  font-size: 12pt;
+  background-color: #ffffff;
+  color: #1a1a1a;
+  padding: 12px;
+  margin-bottom: 16px;
+}

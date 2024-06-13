@@ -13,13 +13,13 @@
     <!-- рендеринг комментариев из JS -->
     <ul class="comments"></ul>
 
-    <!-- Форма ввода нового комментария -->
-    <!-- Имя -->
+    <!-- форма ввода нового комментария -->
+    <!-- имя -->
     <div class="add-form">
       <input type="text" class="add-form-name" placeholder="Введите ваше имя" />
-      <!-- Комментарий -->
-      <textarea type="textarea" class="add-form-text" placeholder="Введите ваш комментарий" rows="4"></textarea>
-      <!-- Область кнопки -->
+      <!-- комментарий -->
+      <textarea class="add-form-text" placeholder="Введите ваш комментарий" rows="4"></textarea>
+      <!-- область кнопки -->
       <div class="add-form-row">
         <button class="add-form-button">Написать</button>
       </div>
@@ -106,37 +106,17 @@
 
     //обработчик клика на кнопку "Написать"
     addButton.addEventListener('click', () => {
-      addComment();
+      checkSubmit();
     });
 
     //обработчик нажатия Enter в текстовом поле
     textInput.addEventListener('keyup', (event) => {
-      if (event.key === 'Enter') {
-        addComment();
+      if (event.key === 'Enter' && event.shiftKey) {
+        checkSubmit();
+        event.preventDefault();
       }
     });
 
-    //функция добавления комментария с проверкой и удалением пробелов
-    function addComment() {
-      const name = nameInput.value.trim();
-      const text = textInput.value.trim();
-
-      if (name !== '' && text !== '') {
-        const newComment = {
-          name: name,
-          date: getCurrentDate(),
-          text: text,
-          likes: 0,
-          liked: false
-        };
-        comments.push(newComment);
-        renderComments(comments);
-        nameInput.value = '';
-        textInput.value = '';
-      } else {
-        alert('Пожалуйста, заполните все поля');
-      }
-    }
 
     //функция переключения лайка
     function toggleLike(index) {
@@ -158,8 +138,90 @@
       return `${date} ${time}`;
     }
 
-    //обновление состояния кнопки при загрузке страницы
-    updateButtonState();
+    //функция обработки при нажатии на кнопку "написать"
+    function checkSubmit() {
+      const inputAddNameForm = document.querySelector('.add-form-name');
+      const areaAddFormRow = document.querySelector('.add-form-text');
+      const inputValue = inputAddNameForm.value
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;');
+
+      const areaFormValue = areaAddFormRow.value
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll('QUOTE_BEGIN', "<div class='quote'>")
+        .replaceAll('QUOTE_END', '</div>')
+        .replaceAll('\n', '<br>');
+
+      if (inputValue !== '' && areaFormValue !== '') {
+        addComment(inputValue, areaFormValue);
+      }
+
+      //проверка и удаления пробелов
+      function addComment(name, text) {
+        const newComment = {
+          name: name,
+          date: getCurrentDate(),
+          text: text,
+          likes: 0,
+          liked: false
+        };
+        comments.push(newComment);
+        renderComments(comments);
+        inputAddNameForm.value = '';
+        areaAddFormRow.value = '';
+      }
+    }
+
+
+
+    //функция цитаты
+    function toQuote(commentText, commentAuthor) {
+
+      //получаем поле ввода для имени и комментария
+      const nameInput = document.querySelector('.add-form-name');
+      const textInput = document.querySelector('.add-form-text');
+
+
+      //заменяем символы новой строки на теги <br> в тексте комментария
+      const formattedCommentText = commentText.replace(/\n/g, '<br>');
+
+
+
+      //собираем текст цитаты с использованием тегов и переносов строки
+      const quotedComment = `QUOTE_BEGIN${commentAuthor}: ${formattedCommentText}<br>QUOTE_END`;
+      //записываем текущее значение текстового поля в currentValue
+      const currentValue = textInput.value;
+
+
+      //добавляем цитату к текущему значению текстового поля
+      const newValue = currentValue ? currentValue + quotedComment : quotedComment;
+      //заполняем поле ввода новым значением
+      textInput.value = newValue;
+
+      //устанавливаем фокус на поле ввода для комментария
+      textInput.focus();
+
+    }
+
+
+
+
+    //сохраняем все тексты комментариев
+    const commentTexts = document.querySelectorAll('.comment-text');
+    //для каждого текста комментария добавляем обработчик клика
+    commentTexts.forEach((commentText) => {
+      //получаем автора комментария из родительского элемента
+      const commentAuthor = commentText.parentElement.parentElement.querySelector('.comment-header div').textContent;
+      commentText.addEventListener('click', () => {
+        toQuote(commentText.textContent, commentAuthor);
+      });
+    });
+
   });
 </script>
 
