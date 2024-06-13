@@ -9,9 +9,8 @@
 
 <body>
   <div class="container">
-    <!-- сервисные сообщения-->
+    <!-- сообщение о загрузке-->
     <div class="loading-message">Комментарии загружаются...</div>
-    <div class="adding-message">Комментарий добавляется...</div>
 
     <!-- рендеринг комментариев из JS -->
     <ul class="comments"></ul>
@@ -23,7 +22,8 @@
       <input type="text" class="add-form-name" placeholder="Введите ваше имя" />
       <!-- поле ввода комментария -->
       <textarea class="add-form-text" placeholder="Введите ваш комментарий" rows="4"></textarea>
-      <!-- область отправки комментария -->
+      <!-- сообщение о добавлении комментария -->
+      <div class="adding-message">Комментарий добавляется...</div>
       <div class="add-form-row">
         <button class="add-form-button" disabled>Написать</button>
       </div>
@@ -35,6 +35,7 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function () {
+
       // сохранение ссылки API в переменной
       const apiUrl = 'https://wedev-api.sky.pro/api/v1/sergei-smirnov/comments';
 
@@ -50,14 +51,10 @@
       // массив для хранения комментариев
       let comments = [];
 
-
       // Функция загрузки комментариев и даты с сервера
       function fetchComments() {
-        // показываем сообщение о загрузке
-        loadingMessage.classList.add('active');
-
-        // выполняем GET-запрос к API для получения комментариев
-        fetch(apiUrl)
+        loadingMessage.classList.add('active'); // показываем сообщение о загрузке
+        fetch(apiUrl) // выполняем GET-запрос к API для получения комментариев
           .then(response => {
             // проверяем, если сервер вернул статус 500 (внутренняя ошибка сервера)
             if (response.status === 500) {
@@ -96,7 +93,7 @@
               alert("Сервер поломался, попробуйте позже");
               loadingMessage.textContent = "Комментарии не загрузились";
             } else {
-              // если это другая ошибка, выводим её в консоль для отладки
+              alert("Ошибка при загрузке комментариев, попробуйте позже");
               console.error(error);
             }
           });
@@ -165,7 +162,7 @@
 
 
 
-      // функция для отправки нового комментария на сервер
+      //функция для отправки нового комментария на сервер 
       function postComment(name, text) {
         commentForm.classList.add('hidden'); // скрываем форму ввода комментария
         addingMessage.classList.add('active'); // показываем сообщение о добавлении комментария
@@ -188,7 +185,6 @@
               throw new Error("Вы ввели имя короче 3-х символов");
             }
             if (response.status === 500) {
-              addButton.textContent = "Написать";
               throw new Error("Ошибка сервера");
             }
             if (response.status === 201) {
@@ -214,17 +210,8 @@
             // В случае ошибки включаем кнопку "Написать"
             addButton.disabled = false;
             addButton.textContent = "Написать";
+            alert(error.message);
 
-            // Обработка ошибок
-            if (error.message === "Вы ввели имя короче 3-х символов") {
-              alert("Вы ввели имя и комментарий короче 3-х символов");
-            }
-            if (error.message === "Ошибка сервера") {
-              alert("Сервер сломался, попробуйте позже");
-            }
-            if (error.message === "Failed to fetch") {
-              alert("Отсутствует подключение к интернету, попробуйте позже");
-            }
           });
       }
 
