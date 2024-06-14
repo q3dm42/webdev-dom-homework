@@ -9,9 +9,8 @@
 
 <body>
   <div class="container">
-    <!-- сервисные сообщения-->
+    <!-- сообщение о загрузке-->
     <div class="loading-message">Комментарии загружаются...</div>
-    <div class="adding-message">Комментарий добавляется...</div>
 
     <!-- рендеринг комментариев из JS -->
     <ul class="comments"></ul>
@@ -23,7 +22,8 @@
       <input type="text" class="add-form-name" placeholder="Введите ваше имя" />
       <!-- поле ввода комментария -->
       <textarea class="add-form-text" placeholder="Введите ваш комментарий" rows="4"></textarea>
-      <!-- область отправки комментария -->
+      <!-- сообщение о добавлении комментария -->
+      <div class="adding-message">Комментарий добавляется...</div>
       <div class="add-form-row">
         <button class="add-form-button" disabled>Написать</button>
       </div>
@@ -35,9 +35,9 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function () {
+
       // сохранение ссылки API в переменной
       const apiUrl = 'https://wedev-api.sky.pro/api/v1/sergei-smirnov/comments';
-
 
       // получение ссылок на элементы формы и сообщения о загрузке
       const commentForm = document.querySelector('.add-form');
@@ -51,37 +51,54 @@
       // массив для хранения комментариев
       let comments = [];
 
-      // функция сброса полей ввода
-      function clearInputFields() {
-        nameInput.value = '';
-        textInput.value = '';
-        updateButtonState(); // обновление состояния кнопки после очистки полей
-      }
-
-      // получаем комментарии и дату с сервера
+      // Функция загрузки комментариев и даты с сервера
       function fetchComments() {
-        loadingMessage.classList.add('active'); // Показываем сообщение о загрузке
-        fetch(apiUrl)
-          .then(response => response.json())
+        loadingMessage.classList.add('active'); // показываем сообщение о загрузке
+        fetch(apiUrl) // выполняем GET-запрос к API для получения комментариев
+          .then(response => {
+            // проверяем, если сервер вернул статус 500 (внутренняя ошибка сервера)
+            if (response.status === 500) {
+              //  ошибку с сообщением "Сервер поломался"
+              throw new Error("Сервер поломался");
+            }
+            // если статус ответа не 500, преобразуем ответ в формат JSON
+            return response.json();
+          })
           .then(data => {
             // преобразуем данные комментариев в удобный формат и сохраняем в массив
             comments = data.comments.map(comment => ({
               name: comment.author.name,
-              date: new Date(comment.date).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }),
+              date: new Date(comment.date).toLocaleString('ru-RU', {
+                day: '2-digit',
+                month: '2-digit',
+                year: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+              }),
               text: comment.text,
               likes: comment.likes,
               liked: comment.isLiked,
               id: comment.id,
             }));
-            renderComments(comments); // рендерим комментарии
+            // рендерим комментарии на странице
+            renderComments(comments);
           })
           .finally(() => {
-            loadingMessage.classList.remove('active'); // убираем сообщение о загрузке после завершения запроса
+            // убираем сообщение о загрузке после завершения запроса
+            loadingMessage.classList.remove('active');
           })
           .catch(error => {
-            console.error(error);
+            // если ошибка связана с сервером, показываем пользователю сообщение об ошибке
+            if (error.message === "Сервер поломался") {
+              alert("Сервер поломался, попробуйте позже");
+              loadingMessage.textContent = "Комментарии не загрузились";
+            } else {
+              alert("Ошибка при загрузке комментариев, попробуйте позже");
+              console.error(error);
+            }
           });
       }
+
 
       // функция рендеринга комментариев
       function renderComments(commentsArray) {
@@ -116,17 +133,30 @@
           likeButton.addEventListener('click', () => {
             toggleLike(index)
               .then(() => {
-                renderComments(comments); // перерисовываем комментарии с обновленными лайками
+                // перерисовываем комментарии с обновленными лайками
+                renderComments(comments);
               });
           });
+
+          // // если состояние лайка загружается, добавляем анимацию
+          // if (comment.isLikeLoading) {
+          //   likeButton.classList.add('loading-like');
+          // } else {
+          //   likeButton.classList.remove('loading-like');
+          // }
         });
       }
 
 
-      //функция для переключения лайка локально
+
+      // функция для переключения лайка локально
       function toggleLike(index) {
         const comment = comments[index];
         comment.isLikeLoading = true; // устанавливаем состояние загрузки
+
+        // const likeButton = document.querySelector(`.like-button[data-index="${index}"]`);
+        // likeButton.classList.add('loading-like'); 
+        // добавляем класс для анимации
 
         return new Promise(resolve => {
           setTimeout(() => {
@@ -138,47 +168,69 @@
             }
             comment.liked = !comment.liked;
             comment.isLikeLoading = false; // снимаем состояние загрузки
+
+            // likeButton.classList.remove('loading-like'); // удаляем класс для анимации
             resolve();
           }, 2000);
         });
       }
 
 
-      // функция для отправки нового комментария на сервер
+
+
+      //функция для отправки нового комментария на сервер 
       function postComment(name, text) {
-                commentForm.classList.add('hidden'); // скрываем форму ввода комментария
-                addingMessage.classList.add('active'); // показываем сообщение о добавлении комментария
+        commentForm.classList.add('hidden'); // скрываем форму ввода комментария
+        addingMessage.classList.add('active'); // показываем сообщение о добавлении комментария
 
-                // Отключаем кнопку "Написать"
-                addButton.disabled = true;
-                addButton.textContent = "Отправка...";
+        // Отключаем кнопку "Написать"
+        addButton.disabled = true;
+        addButton.textContent = "Отправка...";
 
-                fetch(apiUrl, {
-                    method: 'POST',
-                    body: JSON.stringify({ name, text })
-                })
-                    .then(response => response.json())
-                    .then(() => fetchComments()) // загружаем обновлённые данные с сервера
-                    .then(() => {
-                        clearInputFields(); // очищаем поля ввода
-                        renderComments(comments); // перерисовываем комментарии с добавленным
-
-                        // включаем кнопку "Написать" после успешной отправки
-                        addButton.disabled = false;
-                        addButton.textContent = "Написать";
-                    })
-                    .finally(() => {
-                        commentForm.classList.remove('hidden'); // показываем форму ввода комментария
-                        addingMessage.classList.remove('active'); // скрываем сообщение о добавлении комментария
-                    })
-                    .catch(error => {
-                        console.error('Ошибка при добавлении комментария:', error);
-
-                        // в случае ошибки включаем кнопку "Написать"
-                        addButton.disabled = false;
-                        addButton.textContent = "Написать";
-                    });
+        fetch(apiUrl, {
+          method: 'POST',
+          body: JSON.stringify({
+            name,
+            text,
+            forceError: true //форсеррор для 500 ошибки
+          })
+        })
+          .then(response => {
+            if (response.status === 400) {
+              addButton.textContent = "Написать";
+              throw new Error("Вы ввели имя короче 3-х символов");
             }
+            if (response.status === 500) {
+              throw new Error("Ошибка сервера");
+            }
+            if (response.status === 201) {
+              return response.json();
+            };
+          })
+          .then(() => fetchComments()) // загружаем обновлённые данные с сервера
+          .then(() => {
+            clearInputFields(); // очищаем поля ввода
+            renderComments(comments); // перерисовываем комментарии с добавленным
+
+            // Включаем кнопку "Написать" после успешной отправки
+            addButton.disabled = false;
+            addButton.textContent = "Написать";
+          })
+          .finally(() => {
+            commentForm.classList.remove('hidden'); // показываем форму ввода комментария
+            addingMessage.classList.remove('active'); // скрываем сообщение о добавлении комментария
+          })
+          .catch(error => {
+            console.error('Ошибка при добавлении комментария:', error);
+
+            // В случае ошибки включаем кнопку "Написать"
+            addButton.disabled = false;
+            addButton.textContent = "Написать";
+            alert(error.message);
+
+          });
+      }
+
 
       // проверка и замена вредоносного кода в полях ввода
       function checkSubmit() {
@@ -208,6 +260,13 @@
         const name = nameInput.value.trim();
         const text = textInput.value.trim();
         return name !== '' && text !== '';
+      }
+
+      // функция сброса полей ввода
+      function clearInputFields() {
+        nameInput.value = '';
+        textInput.value = '';
+        updateButtonState(); // обновление состояния кнопки после очистки полей
       }
 
       // функция для обновления состояния кнопки отправки
