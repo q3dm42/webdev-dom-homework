@@ -1,7 +1,6 @@
 import { fetchComments } from './api.js';
 import { renderComments } from './render.js';
-import { initializeForm } from './form.js';
-import { formatComments } from './form.js';
+import { initializeForm, formatComments } from './form.js';
 
 const loadingMessage = document.querySelector('.loading-message');
 
