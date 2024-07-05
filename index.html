@@ -4,12 +4,12 @@
 <head>
   <title>Проект "Комменты"</title>
   <meta charset="utf-8" />
+  <link rel="icon" href="/webdev-dom-homework/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
   <div class="container">
-    <!-- сообщение о загрузке-->
     <div class="loading-message">Комментарии загружаются...</div>
 
     <!-- рендеринг комментариев из JS -->
@@ -17,7 +17,6 @@
 
     <!-- форма ввода нового комментария -->
     <div class="add-form">
-
       <!-- имя -->
       <input type="text" class="add-form-name" placeholder="Введите ваше имя" />
       <!-- поле ввода комментария -->
@@ -27,12 +26,10 @@
       <div class="add-form-row">
         <button class="add-form-button" disabled>Написать</button>
       </div>
-
     </div>
   </div>
 
-
-  <script type="module" src="main.js"></script>
+  <script type="module" src="modules/main.js"></script>
 </body>
 
 </html>
