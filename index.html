@@ -1,35 +1,45 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
+  <head>
+    <title>Проект "Комменты"</title>
+    <meta charset="utf-8" />
+    <link
+      rel="icon"
+      href="/webdev-dom-homework/favicon.ico"
+      type="image/x-icon"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
 
-<head>
-  <title>Проект "Комменты"</title>
-  <meta charset="utf-8" />
-  <link rel="icon" href="/webdev-dom-homework/favicon.ico" type="image/x-icon">
-  <link rel="stylesheet" href="styles.css" />
-</head>
+  <body>
+    <div class="container">
+      <div class="loading-message">Комментарии загружаются...</div>
 
-<body>
-  <div class="container">
-    <div class="loading-message">Комментарии загружаются...</div>
+      <!-- рендеринг комментариев из JS -->
+      <ul class="comments"></ul>
 
-    <!-- рендеринг комментариев из JS -->
-    <ul class="comments"></ul>
-
-    <!-- форма ввода нового комментария -->
-    <div class="add-form">
-      <!-- имя -->
-      <input type="text" class="add-form-name" placeholder="Введите ваше имя" />
-      <!-- поле ввода комментария -->
-      <textarea class="add-form-text" placeholder="Введите ваш комментарий" rows="4"></textarea>
-      <!-- сообщение о добавлении комментария -->
-      <div class="adding-message">Комментарий добавляется...</div>
-      <div class="add-form-row">
-        <button class="add-form-button" disabled>Написать</button>
+      <!-- форма ввода нового комментария -->
+      <div class="add-form">
+        <!-- имя -->
+        <input
+          type="text"
+          class="add-form-name"
+          placeholder="Введите ваше имя"
+        />
+        <!-- поле ввода комментария -->
+        <textarea
+          class="add-form-text"
+          placeholder="Введите ваш комментарий"
+          rows="4"
+        ></textarea>
+        <!-- сообщение о добавлении комментария -->
+        <div class="adding-message">Комментарий добавляется...</div>
+        <div class="add-form-row">
+          <button class="add-form-button" disabled>Написать</button>
+        </div>
       </div>
     </div>
-  </div>
 
-  <script type="module" src="modules/main.js"></script>
-</body>
-
+    <script type="module" src="modules/main.js"></script>
+  </body>
 </html>
