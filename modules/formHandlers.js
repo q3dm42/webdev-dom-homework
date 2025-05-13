@@ -32,24 +32,23 @@ function checkSubmit() {
 
     addingMessage.classList.add("active");
     addButton.disabled = true;
+    document.querySelector(".add-form").classList.add("hidden");
 
     postComment(inputValue, areaFormValue)
-      .then(() => {
-        clearInputFields(nameInput, textInput, updateButtonState);
-        return fetchComments();
-      })
+      .then(fetchComments)
       .then((data) => {
         setComments(formatComments(data.comments));
         renderComments(commentsArray);
+        clearInputFields(nameInput, textInput, updateButtonState);
+      })
+      .catch((error) => {
+        console.error("Ошибка при добавлении комментария:", error);
+        alert(error.message);
       })
       .finally(() => {
         addingMessage.classList.remove("active");
         addButton.disabled = false;
-      })
-      .catch((error) => {
-        console.error("Ошибка при добавлении комментария:", error);
-        addButton.disabled = false;
-        alert(error.message);
+        document.querySelector(".add-form").classList.remove("hidden");
       });
   } else {
     alert(

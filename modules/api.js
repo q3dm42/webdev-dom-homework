@@ -4,22 +4,23 @@ const apiUrl = "https://wedev-api.sky.pro/api/v1/sergei-smirnov/comments";
 export function postComment(name, text) {
   return fetch(apiUrl, {
     method: "POST",
-    headers: {
-      // 'Content-Type': 'application/json'
-    },
+    headers: {},
     body: JSON.stringify({
       name: name,
       text: text,
-      //forceError: true
     }),
   }).then((response) => {
     if (response.status === 400) {
-      return response.json().then((data) => {
-        throw new Error(data.message || "Вы ввели имя короче 3-х символов");
-      });
+      return response
+        .json()
+        .then((data) =>
+          Promise.reject(
+            new Error(data.message || "Вы ввели имя короче 3-х символов")
+          )
+        );
     }
     if (response.status === 500) {
-      throw new Error("Ошибка сервера");
+      return Promise.reject(new Error("Ошибка сервера"));
     }
     if (response.status === 201) {
       return response.json();
@@ -31,7 +32,7 @@ export function postComment(name, text) {
 export function fetchComments() {
   return fetch(apiUrl).then((response) => {
     if (response.status === 500) {
-      throw new Error("Сервер поломался");
+      return Promise.reject(new Error("Сервер поломался"));
     }
     return response.json();
   });
