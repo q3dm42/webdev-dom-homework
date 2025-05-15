@@ -25,7 +25,7 @@ export function initializeForm() {
 }
 
 // проверка и отправка формы
-function checkSubmit() {
+async function checkSubmit() {
   if (checkFields(nameInput, textInput)) {
     const inputValue = sanitizeInput(nameInput.value);
     const areaFormValue = sanitizeInput(textInput.value);
@@ -34,22 +34,20 @@ function checkSubmit() {
     addButton.disabled = true;
     document.querySelector(".add-form").classList.add("hidden");
 
-    postComment(inputValue, areaFormValue)
-      .then(fetchComments)
-      .then((data) => {
-        setComments(formatComments(data.comments));
-        renderComments(commentsArray);
-        clearInputFields(nameInput, textInput, updateButtonState);
-      })
-      .catch((error) => {
-        console.error("Ошибка при добавлении комментария:", error);
-        alert(error.message);
-      })
-      .finally(() => {
-        addingMessage.classList.remove("active");
-        addButton.disabled = false;
-        document.querySelector(".add-form").classList.remove("hidden");
-      });
+    try {
+      await postComment(inputValue, areaFormValue);
+      const data = await fetchComments();
+      setComments(formatComments(data.comments));
+      renderComments(commentsArray);
+      clearInputFields(nameInput, textInput, updateButtonState);
+    } catch (error) {
+      console.error("Ошибка при добавлении комментария:", error);
+      alert(error.message);
+    } finally {
+      addingMessage.classList.remove("active");
+      addButton.disabled = false;
+      document.querySelector(".add-form").classList.remove("hidden");
+    }
   } else {
     alert(
       "Имя должно быть не короче 3-х символов и комментарий не должен быть пустым."
