@@ -35,13 +35,13 @@ async function checkSubmit() {
     document.querySelector(".add-form").classList.add("hidden");
 
     try {
-      await postComment(inputValue, areaFormValue);
+      // Для теста 500 ошибки раскомментить true - третий параметр forceError
+      await postComment(inputValue, areaFormValue /*, true*/);
       const data = await fetchComments();
       setComments(formatComments(data.comments));
       renderComments(commentsArray);
       clearInputFields(nameInput, textInput, updateButtonState);
     } catch (error) {
-      console.error("Ошибка при добавлении комментария:", error);
       alert(error.message);
     } finally {
       addingMessage.classList.remove("active");
@@ -49,9 +49,7 @@ async function checkSubmit() {
       document.querySelector(".add-form").classList.remove("hidden");
     }
   } else {
-    alert(
-      "Имя должно быть не короче 3-х символов и комментарий не должен быть пустым."
-    );
+    alert("Имя и комментарий должны быть не короче 3 символов");
   }
 }
 

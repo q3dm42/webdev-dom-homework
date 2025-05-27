@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     setComments(formatComments(data.comments));
     renderComments(commentsArray);
   } catch (error) {
-    alert("Ошибка загрузки комментариев");
+    alert(error.message);
     console.error(error);
   } finally {
     loadingMessage.classList.remove("active");
