@@ -28,3 +28,22 @@ export function checkFields(nameInput, textInput) {
   const text = textInput.value.trim();
   return name.length >= 3 && text !== "";
 }
+
+// Добавляем функцию для инициализации обработчиков событий формы
+export function addFormEventListeners(
+  nameInput,
+  textInput,
+  addButton,
+  checkSubmit,
+  updateButtonState
+) {
+  nameInput.addEventListener("input", updateButtonState);
+  textInput.addEventListener("input", updateButtonState);
+  addButton.addEventListener("click", checkSubmit);
+  textInput.addEventListener("keyup", (event) => {
+    if (event.key === "Enter" && event.shiftKey) {
+      checkSubmit();
+      event.preventDefault();
+    }
+  });
+}
