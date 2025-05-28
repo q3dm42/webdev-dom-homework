@@ -1,0 +1,31 @@
+{
+  "name": "webdev-dom-homework",
+  "version": "1.0.0",
+  "description": "https://glebkaf.github.io/webdev-dom-homework/",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/q3dm42/webdev-dom-homework.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/q3dm42/webdev-dom-homework/issues"
+  },
+  "homepage": "https://github.com/q3dm42/webdev-dom-homework#readme",
+  "dependencies": {
+    "date-fns": "^4.1.0",
+    "prettier": "^3.5.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.23.0",
+    "eslint": "^9.23.0",
+    "eslint-config-prettier": "^10.1.1",
+    "eslint-plugin-prettier": "^5.2.5",
+    "globals": "^16.0.0"
+  }
+}

@@ -16,7 +16,11 @@
   }
 }
 
-.loading-like {
+body {
+  margin: 0;
+}
+
+.like-button.rotating {
   animation: rotating 2s linear infinite;
 }
 
@@ -44,14 +48,6 @@
 
 .comment-form.hidden {
   display: none;
-}
-
-
-
-
-
-body {
-  margin: 0;
 }
 
 .container {
