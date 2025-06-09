@@ -1,9 +1,10 @@
 // modules/render.js
+import { getUserName } from "./api.js";
 
 const commentsList = document.querySelector(".comments");
 
-// Рендеринг списка комментариев
-export function renderComments(commentsArray) {
+// рендеринг списка комментариев
+export function renderComments(commentsArray, { isAuthorized, onAuthClick }) {
   commentsList.innerHTML = "";
 
   commentsArray.forEach((comment, index) => {
@@ -29,10 +30,48 @@ export function renderComments(commentsArray) {
     const likeButton = li.querySelector(".like-button");
     likeButton.addEventListener("click", () => {
       toggleLike(index, commentsArray).then(() => {
-        renderComments(commentsArray);
+        renderComments(commentsArray, { isAuthorized, onAuthClick });
       });
     });
   });
+
+  // если не авторизован, показать ссылку на авторизацию и скрыть форму
+  const addForm = document.querySelector(".add-form");
+  if (!isAuthorized) {
+    if (addForm) addForm.style.display = "none";
+    const container = document.querySelector(".container");
+    let authLink = document.querySelector(".auth-link");
+    if (!authLink) {
+      const p = document.createElement("p");
+      p.innerHTML = `Чтобы добавить комментарий, <a href="#" class="auth-link">авторизуйтесь</a>`;
+
+      if (addForm && addForm.parentNode) {
+        addForm.parentNode.insertBefore(p, addForm);
+      } else {
+        container.appendChild(p);
+      }
+      p.querySelector(".auth-link").addEventListener("click", (e) => {
+        e.preventDefault();
+        document.querySelectorAll("p .auth-link").forEach((el) => {
+          el.parentElement.remove();
+        });
+        onAuthClick();
+      });
+    }
+  } else {
+    if (addForm) {
+      addForm.style.display = "";
+      // имя readonly и value из getUserName
+      const nameInput = addForm.querySelector(".add-form-name");
+      if (nameInput) {
+        nameInput.value = getUserName() || "";
+        nameInput.setAttribute("readonly", "readonly");
+      }
+    }
+    // удалить ссылку на авторизацию если есть
+    const authLinkP = document.querySelector("p .auth-link")?.parentElement;
+    if (authLinkP) authLinkP.remove();
+  }
 }
 
 // имитация лайка с анимацией
@@ -41,7 +80,9 @@ function toggleLike(index, comments) {
   comment.isLikeLoading = true;
 
   return new Promise((resolve) => {
-    const likeButton = document.querySelector(`.like-button[data-index="${index}"]`);
+    const likeButton = document.querySelector(
+      `.like-button[data-index="${index}"]`
+    );
     likeButton.classList.add("rotating");
 
     setTimeout(() => {

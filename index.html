@@ -19,12 +19,13 @@
       <ul class="comments"></ul>
 
       <!-- форма ввода нового комментария -->
-      <div class="add-form">
+      <form class="add-form" style="display: none">
         <!-- имя -->
         <input
           type="text"
           class="add-form-name"
           placeholder="Введите ваше имя"
+          readonly
         />
         <!-- поле ввода комментария -->
         <textarea
@@ -35,9 +36,9 @@
         <!-- сообщение о добавлении комментария -->
         <div class="adding-message">Комментарий добавляется...</div>
         <div class="add-form-row">
-          <button class="add-form-button" disabled>Написать</button>
+          <button class="add-form-button" type="submit">Написать</button>
         </div>
-      </div>
+      </form>
     </div>
 
     <script type="module" src="modules/main.js"></script>

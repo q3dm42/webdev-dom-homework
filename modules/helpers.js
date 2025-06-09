@@ -29,7 +29,7 @@ export function checkFields(nameInput, textInput) {
   return name.length >= 3 && text !== "";
 }
 
-// Добавляем функцию для инициализации обработчиков событий формы
+// добавляем функцию для инициализации обработчиков событий формы комментариев
 export function addFormEventListeners(
   nameInput,
   textInput,
