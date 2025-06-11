@@ -26,13 +26,6 @@ export function renderComments(commentsArray, { isAuthorized, onAuthClick }) {
       </div>
     `;
     commentsList.appendChild(li);
-
-    const likeButton = li.querySelector(".like-button");
-    likeButton.addEventListener("click", () => {
-      toggleLike(index, commentsArray).then(() => {
-        renderComments(commentsArray, { isAuthorized, onAuthClick });
-      });
-    });
   });
 
   // если не авторизован, показать ссылку на авторизацию и скрыть форму
@@ -72,30 +65,4 @@ export function renderComments(commentsArray, { isAuthorized, onAuthClick }) {
     const authLinkP = document.querySelector("p .auth-link")?.parentElement;
     if (authLinkP) authLinkP.remove();
   }
-}
-
-// имитация лайка с анимацией
-function toggleLike(index, comments) {
-  const comment = comments[index];
-  comment.isLikeLoading = true;
-
-  return new Promise((resolve) => {
-    const likeButton = document.querySelector(
-      `.like-button[data-index="${index}"]`
-    );
-    likeButton.classList.add("rotating");
-
-    setTimeout(() => {
-      if (!comment.liked) {
-        comment.likes++;
-      } else {
-        comment.likes--;
-      }
-      comment.liked = !comment.liked;
-      comment.isLikeLoading = false;
-
-      likeButton.classList.remove("rotating");
-      resolve();
-    }, 2000);
-  });
 }
